@@ -1,21 +1,32 @@
 /* eslint @typescript-eslint/no-misused-promises: 0 */
 /* eslint @typescript-eslint/no-floating-promises: 0 */
 
+// ─── Imports ─────────────────────────────────────────────────────────────────
+
+import { debug } from 'console'
 import * as dotenv from 'dotenv'
 import express, { Application, Request, Response } from 'express'
-import { debug } from 'console'
-import { NetworkInterfaceInfo, networkInterfaces } from 'os'
-import qrcode from 'qrcode-terminal'
-import path from 'path'
 import fs, { Stats } from 'fs'
+import { NetworkInterfaceInfo, networkInterfaces } from 'os'
+import path from 'path'
+import qrcode from 'qrcode-terminal'
 import tar from 'tar'
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 dotenv.config()
 
 async function main (): Promise<void> {
+  // ─── Error Handling ──────────────────────────────────────────────────
+
   if (process.argv.length !== 3) throw new Error('Invalid arguments')
 
+  // ─── Init ────────────────────────────────────────────────────────────
+
   const app: Application = express()
+
+  // ─── Retrieve IP Address ─────────────────────────────────────────────
+
   const ip: string | undefined = Object.values(networkInterfaces())
     .flat()
     .find((i: NetworkInterfaceInfo | undefined): Boolean => {
@@ -32,7 +43,12 @@ async function main (): Promise<void> {
     console.log('Creating the tarball...')
     await tar.create({ gzip: true, file: 'directory_archive.tar.gz' }, [filePath])
   }
+
+  // ─── Create The QR Code ──────────────────────────────────────────────
+
   qrcode.generate(address)
+
+  // ─── Route For Serving The File ──────────────────────────────────────
 
   app.get('/', async (req: Request, res: Response): Promise<void> => {
     if (stats.isDirectory()) {
@@ -43,12 +59,16 @@ async function main (): Promise<void> {
     res.download(filePath)
   })
 
+  // ─── Start Server ────────────────────────────────────────────────────
+
   const server = app.listen(Number(process.env.PORT), () => {
     process.stdin.setRawMode(true)
     process.stdin.resume()
     process.stdin.on('data', () => process.kill(process.pid, 'SIGTERM'))
     console.log('Press any key to stop sharing')
   })
+
+  // ─── Graceful Shutdown ───────────────────────────────────────────────
 
   process.on('SIGTERM', () => {
     debug('SIGTERM signal received: closing HTTP server.')
@@ -63,9 +83,15 @@ async function main (): Promise<void> {
       }
     })
   })
+  // ─────────────────────────────────────────────────────────────────────
 }
+
+// ─── Call To Main ────────────────────────────────────────────────────────────
+
 try {
   main()
 } catch (err: unknown) {
   console.error(err)
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
