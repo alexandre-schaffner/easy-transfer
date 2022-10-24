@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-misused-promises: 0 */
-/* @typescript-eslint/no-floating-promises: 0 */
+/* eslint @typescript-eslint/no-floating-promises: 0 */
 
 import * as dotenv from 'dotenv'
 import express, { Application, Request, Response } from 'express'
