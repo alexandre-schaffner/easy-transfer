@@ -3,46 +3,17 @@
 
 // ─── Imports ─────────────────────────────────────────────────────────────────
 
-import { spawn } from 'child_process'
 import { debug } from 'console'
 import * as dotenv from 'dotenv'
 import express, { Application, Request, Response } from 'express'
 import fs, { Stats } from 'fs'
-import { NetworkInterfaceInfo, networkInterfaces } from 'os'
 import path from 'path'
-import qrcode from 'qrcode-terminal'
+import createQRCode from './createQRCode'
+import createTarball from './createTarball'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 dotenv.config()
-
-function createTarball (dirPath: string): void {
-  console.log('Creating the tarball...')
-  const tarballName: string = (dirPath.split('/').pop() as string) + '.tar.gz'
-  const child = spawn('tar', ['-C', dirPath, '-czf', tarballName, '.'])
-
-  child.on('close', (data) => {
-    createQRCode()
-  })
-}
-
-function createQRCode (): void {
-  // ─── Retrieve IP Address ─────────────────────────────────────────────
-
-  const ip: string | undefined = Object.values(networkInterfaces())
-    .flat()
-    .find((i: NetworkInterfaceInfo | undefined): Boolean => {
-      if (i === undefined) return false
-      return i.family === 'IPv4' && !i.internal
-    })
-    ?.address
-  if (ip === undefined) throw new Error('Cannot retrieve the local IP of this machine.')
-  const address: string = 'http://' + ip + ':' + String(process.env.PORT)
-
-  // ─── Generate The QR Code ────────────────────────────────────────────
-
-  qrcode.generate(address)
-}
 
 async function main (av: string[]): Promise<void> {
   // ─── Error Handling ──────────────────────────────────────────────────
@@ -68,6 +39,7 @@ async function main (av: string[]): Promise<void> {
   app.get('/', async (req: Request, res: Response): Promise<void> => {
     if (stats.isDirectory()) {
       res.download(path.resolve() + '/' + fileName + '.tar.gz')
+      console.log('Sending ' + fileName + '...')
       return
     }
     console.log('Sending ' + fileName + '...')
