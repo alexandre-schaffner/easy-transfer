@@ -3,6 +3,7 @@
 
 // ─── Imports ─────────────────────────────────────────────────────────────────
 
+import { spawn } from 'child_process'
 import { debug } from 'console'
 import * as dotenv from 'dotenv'
 import express, { Application, Request, Response } from 'express'
@@ -10,7 +11,6 @@ import fs, { Stats } from 'fs'
 import { NetworkInterfaceInfo, networkInterfaces } from 'os'
 import path from 'path'
 import qrcode from 'qrcode-terminal'
-import { spawn } from 'child_process'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -72,10 +72,6 @@ async function main (av: string[]): Promise<void> {
     }
     console.log('Sending ' + fileName + '...')
     res.download(filePath)
-  })
-
-  app.get('/hello', (req: Request, res: Response) => {
-    res.send('Hello World !')
   })
 
   // ─── Start Server ────────────────────────────────────────────────────
