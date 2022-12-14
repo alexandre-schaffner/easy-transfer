@@ -4,12 +4,18 @@ easy-transfer is a simple tool that allows you to easily share files from your c
 
 ## Installation
 
-To install easy-transfer, clone the project from GitHub and run `yarn` to install the dependencies.
+To install easy-transfer, you can clone the repository from GitHub and build the package yourself:
+```bash
+$ git clone git@github.com:alexandre-schaffner/easy-transfer.git
+$ cd easy-transfer
+$ yarn install
+$ yarn build
+```
+
+You can then install the package globally with:
 
 ```bash
-$ git clone https://github.com/your-username/easy-transfer.git
-$ cd easy-transfer
-$ yarn
+$ yarn install-pkg
 ```
 
 ## Usage
